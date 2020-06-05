@@ -57,29 +57,21 @@ def video_complexity_gaussian(sigma, radius):
     return video_complexity_with_kernel(kernel)
 
 
-def image_filter_to_video_filter(image_filter, skip):
-    """Converts an image filter into a video filter by frame"""
-
+def image_filter_to_video_filter(image_filter):
     def f(iterator):
         for i, frame in iterator:
-            if i % skip == 0:
-                yield i, image_filter(frame)
-            else:
-                continue
-
+            yield i, image_filter(frame)
     return f
 
 
 def load_video(filename, skip):
     video = cv2.VideoCapture(filename)
     for i in itertools.count():
+        has_frame, frame = video.read()
+        if not has_frame:
+            break
         if i % skip == 0:
-            has_frame, frame = video.read()
-            if not has_frame:
-                break
             yield i, np.transpose(frame, (1, 0, 2)) / 255
-        else:
-            continue
 
 
 def load_image(filename):
@@ -103,7 +95,7 @@ def run(paths, skip):
 
             video = load_video(path, skip)
             if method_name.startswith('image:'):
-                method = image_filter_to_video_filter(method, skip)
+                method = image_filter_to_video_filter(method)
 
             for i, val in method(video):
                 results.setdefault(i, dict())[method_name] = val
@@ -118,7 +110,6 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument("media", nargs='+', help="the media files to analyze")
-    parser.add_argument("-v", "--verbose", help="verbose", action="store_true")
     parser.add_argument("-o", "--output", help="write output to file")
     parser.add_argument("-s", type=int, default=1,  help="skip frames")
 
