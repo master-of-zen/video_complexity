@@ -1,22 +1,20 @@
 #!/usr/bin/env python
 
 import itertools
-import sys
 import time
 import cv2
 import numpy as np
 import scipy.ndimage
-from matplotlib import pyplot
 import json
 
 
 def image_complexity_jpeg(image):
-    r, buf = cv2.imencode('.jpeg', image, [cv2.IMWRITE_JPEG_QUALITY, 90])
+    r, buf = cv2.imencode('.jpeg', image, [cv2.IMWRITE_JPEG_QUALITY, 100])
     return len(buf)
 
 
 def image_complexity_webp(image):
-    r, buf = cv2.imencode(".webp", image, [cv2.IMWRITE_WEBP_QUALITY, 90])
+    r, buf = cv2.imencode(".webp", image, [cv2.IMWRITE_WEBP_QUALITY, 100])
     return len(buf)
 
 
@@ -82,8 +80,8 @@ def run(paths, skip):
     methods = {
         "image:jpeg": image_complexity_jpeg,
         "image:webp": image_complexity_webp,
-        # "video:box": video_complexity_box(2),
-        # "video:gaussian": video_complexity_gaussian(radius=2, sigma=2 * 0.3)
+        #"video:box": video_complexity_box(2),
+        #"video:gaussian": video_complexity_gaussian(radius=2, sigma=2 * 0.3)
     }
 
     for path in paths:
@@ -110,7 +108,6 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument("media", nargs='+', help="the media files to analyze")
-    parser.add_argument("-o", "--output", help="write output to file")
     parser.add_argument("-s", type=int, default=1,  help="skip frames")
 
     args = parser.parse_args()
